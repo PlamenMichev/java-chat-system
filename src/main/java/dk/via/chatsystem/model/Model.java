@@ -1,11 +1,12 @@
 package dk.via.chatsystem.model;
 
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public interface Model {
-    void sendMessage(String senderUsername, String messageContent);
-    void addUser(String username);
+    void sendMessage(Message message);
+    void addUser(String username) throws IOException;
     ArrayList<User> getUsers();
     void addPropertyChangeListener(PropertyChangeListener listener);
     void removePropertyChangeListener(PropertyChangeListener listener);

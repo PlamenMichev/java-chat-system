@@ -5,12 +5,12 @@ import java.util.Date;
 public class Message {
     private String content;
     private String sentBy;
-    private Date sentAt;
+    private long sentAt;
 
-    public Message(String content, String sentBy, Date sentAt) {
+    public Message(String content, String sentBy) {
         this.content = content;
         this.sentBy = sentBy;
-        this.sentAt = sentAt;
+        this.sentAt = new Date().getTime();
     }
 
     public String getContent() {
@@ -21,7 +21,7 @@ public class Message {
         return sentBy;
     }
 
-    public Date getSentAt() {
+    public long getSentAt() {
         return sentAt;
     }
 
@@ -40,6 +40,6 @@ public class Message {
             return false;
         }
 
-        return content.equals(((Message)obj).content) && sentBy.equals(((Message)obj).sentBy) && sentAt.equals(((Message)obj).sentAt);
+        return content.equals(((Message)obj).content) && sentBy.equals(((Message)obj).sentBy);
     }
 }

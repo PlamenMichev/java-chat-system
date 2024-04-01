@@ -43,7 +43,7 @@ public class ViewFactory {
     public Region loadChatRoomView() {
         if (chatRoomViewController == null) {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("view/ChatRoomView.fxml"));
+            loader.setLocation(getClass().getResource("ChatRoomView.fxml"));
             try {
                 Region root = loader.load();
                 chatRoomViewController = loader.getController();

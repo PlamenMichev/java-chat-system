@@ -5,6 +5,7 @@ import dk.via.chatsystem.client.ChatClient;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,18 +21,25 @@ public class ModelManager implements Model, PropertyChangeListener {
     }
 
     @Override
-    public void sendMessage(String senderUsername, String messageContent) {
-        client.sendMessage(senderUsername, messageContent, new Date());
+    public void sendMessage(Message message) {
+        client.sendMessage(message);
     }
 
     @Override
-    public void addUser(String username) {
-
+    public void addUser(String username) throws IOException {
+        if (username == null || username.isBlank()) return;
+        if (client.getUsers().stream().anyMatch(user -> user.getUsername().equals(username))) return;
+        client.addUser(username);
     }
 
     @Override
     public ArrayList<User> getUsers() {
-        return null;
+        try {
+            return client.getUsers();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
     @Override

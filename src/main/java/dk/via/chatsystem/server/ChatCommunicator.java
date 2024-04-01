@@ -1,10 +1,13 @@
 package dk.via.chatsystem.server;
 
 
+import dk.via.chatsystem.client.MessageType;
+import dk.via.chatsystem.model.User;
 import dk.via.chatsystem.socket.StreamFactory;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class ChatCommunicator implements Runnable {
     private final Socket socket;
@@ -20,7 +23,37 @@ public class ChatCommunicator implements Runnable {
             BufferedReader input = StreamFactory.createReader(socket);
             PrintWriter output = StreamFactory.createWriter(socket);
             while (true) {
+                String message = input.readLine();
+                if (message == null) break;
 
+                String command = message.split(" ")[0];
+
+                switch (command) {
+                    case MessageType.EXIT:
+                        return;
+                    case MessageType.NEW_USER:
+                        User newUserUsername = new User(message.split(" ")[1]);
+                        if (ChatServer.getUsers().contains(newUserUsername)) {
+                            break;
+                        }
+
+                        ChatServer.addUser(newUserUsername);
+                        broadcaster.broadcast(MessageType.NEW_USER + " " + newUserUsername);
+                        break;
+                    case MessageType.GET_USERS:
+                        ArrayList<User> chatters = ChatServer.getUsers();
+                        for (User chatter : chatters) {
+                            output.println(chatter.toString());
+                        }
+
+                        output.println("END");
+                        break;
+                    case MessageType.NEW_MESSAGE:
+                        // Format: SEND_MESSAGE <message> <sender> <timestamp>
+                        broadcaster.broadcast(message);
+                        break;
+                }
+                output.flush();
             }
         } finally {
             socket.close();

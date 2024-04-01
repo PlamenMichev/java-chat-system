@@ -1,5 +1,6 @@
 package dk.via.chatsystem.client;
 
+import dk.via.chatsystem.model.Message;
 import dk.via.chatsystem.model.User;
 import dk.via.chatsystem.socket.StreamFactory;
 
@@ -21,43 +22,78 @@ public class ChatClientImplementation implements ChatClient {
     private final PrintWriter output;
     private final BufferedReader input;
     private final PropertyChangeSupport support;
+    private final MessageListener listener;
+
 
     public ChatClientImplementation(String host, int port) throws IOException {
         this.support = new PropertyChangeSupport(this);
         this.socket = new Socket(host, port);
         this.output = StreamFactory.createWriter(socket);
         this.input = StreamFactory.createReader(socket);
+
+        this.listener = new MessageListener(this, "230.0.0.0", 8888);
+        Thread thread = new Thread(listener);
+        thread.start();
     }
 
 
     @Override
-    public void sendMessage(String senderUsername, String messageContent, Date sentAt) {
-        output.println(MessageType.NEW_MESSAGE + " " + senderUsername + " " +  sentAt + " " + messageContent);
+    public void sendMessage(Message message) {
+        output.println(MessageType.NEW_MESSAGE);
         output.flush();
     }
 
     @Override
     public void addUser(String username) {
-
+        output.println(MessageType.NEW_USER + " " + username);
+        output.flush();
     }
 
     @Override
-    public ArrayList<User> getUsers() {
-        return null;
+    public ArrayList<User> getUsers() throws IOException {
+        output.println(MessageType.GET_USERS);
+        output.flush();
+        ArrayList<User> users = new ArrayList<>();
+        while (true) {
+            String chatter = input.readLine();
+            if (chatter.equals("END")) break;
+            users.add(new User(chatter));
+        }
+
+        return users;
     }
 
     @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
-
+        support.addPropertyChangeListener(listener);
     }
 
     @Override
     public void removePropertyChangeListener(PropertyChangeListener listener) {
-
+        support.removePropertyChangeListener(listener);
     }
 
     @Override
     public void close() throws IOException {
+        output.println(EXIT_JSON);
+        output.flush();
+        socket.close();
+        listener.close();
+    }
 
+    public void receiveBroadcast(String message) {
+        var messageType = message.split(" ")[0];
+        System.out.println("If its up then its up 1" + messageType);
+        switch (messageType) {
+            case MessageType.NEW_MESSAGE -> {
+                var sender = message.split(" ")[1];
+                var content = message.split(" ")[3];
+                support.firePropertyChange(MessageType.NEW_MESSAGE, null, new Message(sender, content));
+            }
+            case MessageType.NEW_USER -> {
+                var username = message.split(" ")[1];
+                support.firePropertyChange(MessageType.NEW_USER, null, new User(username));
+            }
+        }
     }
 }

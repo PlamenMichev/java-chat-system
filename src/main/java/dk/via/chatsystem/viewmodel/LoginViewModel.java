@@ -1,6 +1,8 @@
 package dk.via.chatsystem.viewmodel;
 
 import dk.via.chatsystem.model.Model;
+import dk.via.chatsystem.view.ViewFactory;
+import dk.via.chatsystem.view.ViewHandler;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -8,6 +10,7 @@ import javafx.beans.property.StringProperty;
 import javax.xml.transform.Result;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 
 public class LoginViewModel implements PropertyChangeListener {
     private final Model model;
@@ -19,8 +22,13 @@ public class LoginViewModel implements PropertyChangeListener {
         model.addPropertyChangeListener(this);
     }
 
-    public void login() {
-        model.addUser(this.username.get());
+    public void login(ViewHandler viewHandler) {
+        try {
+            model.addUser(this.username.get());
+            viewHandler.openView(ViewFactory.CHAT_ROOM);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void bindUsername(StringProperty property) {

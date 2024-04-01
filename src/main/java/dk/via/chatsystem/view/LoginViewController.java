@@ -20,6 +20,10 @@ public class LoginViewController {
         this.root = root;
 
         loginViewModel.bindUsername(usernameField.textProperty());
+
+        this.loginButton.setOnAction(actionEvent -> {
+            loginViewModel.login(viewHandler);
+        });
     }
 
     public Region getRoot() {
