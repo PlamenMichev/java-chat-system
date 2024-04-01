@@ -12,6 +12,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
+import javafx.application.Platform;
 
 public class ChatClientImplementation implements ChatClient {
     private static final String EXIT_JSON = """
@@ -39,7 +40,7 @@ public class ChatClientImplementation implements ChatClient {
 
     @Override
     public void sendMessage(Message message) {
-        output.println(MessageType.NEW_MESSAGE);
+        output.println(MessageType.NEW_MESSAGE + " " + message.getSentBy() + " " +  message.getContent());
         output.flush();
     }
 
@@ -82,18 +83,25 @@ public class ChatClientImplementation implements ChatClient {
     }
 
     public void receiveBroadcast(String message) {
-        var messageType = message.split(" ")[0];
-        System.out.println("If its up then its up 1" + messageType);
-        switch (messageType) {
-            case MessageType.NEW_MESSAGE -> {
-                var sender = message.split(" ")[1];
-                var content = message.split(" ")[3];
-                support.firePropertyChange(MessageType.NEW_MESSAGE, null, new Message(sender, content));
+        Platform.runLater(() -> {
+            var messageType = message.split(" ")[0];
+
+            switch (messageType) {
+                case MessageType.NEW_MESSAGE -> {
+                    var messageSplit = message.split(" ");
+                    String sender = messageSplit[1];
+                    StringBuilder messageContent = new StringBuilder();
+                    for (int i = 2; i < messageSplit.length; i++) {
+                        messageContent.append(messageSplit[i]).append(" ");
+                    }
+
+                    support.firePropertyChange("receive_message", null, new Message(messageContent.toString(), sender));
+                }
+                case MessageType.NEW_USER -> {
+                    var username = message.split(" ")[1];
+                    support.firePropertyChange("receive_user", null, new User(username));
+                }
             }
-            case MessageType.NEW_USER -> {
-                var username = message.split(" ")[1];
-                support.firePropertyChange(MessageType.NEW_USER, null, new User(username));
-            }
-        }
+        });
     }
 }

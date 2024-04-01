@@ -18,11 +18,11 @@
     <center>
         <VBox>
             <ScrollPane>
-                <VBox fx:id="chatMessagesVBox"/>
+                <TextArea fx:id="chatArea"/>
             </ScrollPane>
             <HBox>
-                <TextField fx:id="messageInputField" promptText="Type your message"/>
-                <Button text="Send" />
+                <TextField fx:id="messageTextField" promptText="Type your message"/>
+                <Button fx:id="sendButton" text="Send" />
             </HBox>
         </VBox>
     </center>

@@ -27,18 +27,18 @@ public class MessageListener implements Runnable {
         }
     }
 
+    private String lastPacket = null;
+
     private void listen() throws IOException {
         multicastSocket.joinGroup(socketAddress, netInterface);
-        try {
-            byte[] content = new byte[32768];
-            while (true) {
-                DatagramPacket packet = new DatagramPacket(content, content.length);
-                multicastSocket.receive(packet);
-                String message = new String(packet.getData(), 0, packet.getLength());
-                client.receiveBroadcast(message);
-            }
-        } catch (SocketException e) {
-            if (!(e.getCause() instanceof AsynchronousCloseException)) throw e;
+        byte[] content = new byte[32768];
+        while (true) {
+            DatagramPacket packet = new DatagramPacket(content, content.length);
+            multicastSocket.receive(packet);
+            String message = new String(packet.getData(), 0, packet.getLength());
+            if(message.equals(lastPacket)) continue;
+            lastPacket = message;
+            client.receiveBroadcast(message);
         }
     }
 
