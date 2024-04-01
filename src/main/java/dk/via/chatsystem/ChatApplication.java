@@ -1,5 +1,11 @@
 package dk.via.chatsystem;
 
+import dk.via.chatsystem.client.ChatClient;
+import dk.via.chatsystem.client.ChatClientImplementation;
+import dk.via.chatsystem.model.Model;
+import dk.via.chatsystem.model.ModelManager;
+import dk.via.chatsystem.view.ViewHandler;
+import dk.via.chatsystem.viewmodel.ViewModelFactory;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -13,21 +19,11 @@ import java.io.Console;
 public class ChatApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Load the FXML file
-        System.out.println("Test");
-        FXMLLoader loader = new FXMLLoader();
-        var test = getClass();
-        var resource = getClass().getResource("LoginView.fxml");
-        loader.setLocation(getClass().getResource("view/LoginView.fxml"));
-        Region root = loader.load();
-
-        // Set the FXML file as the root of the scene
-        Scene scene = new Scene(root, 300, 150);
-
-        // Set the scene to the stage and show the stage
-        primaryStage.setTitle("Login");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        ChatClient client = new ChatClientImplementation("localhost", 8080);
+        Model model = new ModelManager(client);
+        ViewModelFactory viewModelFactory = new ViewModelFactory(model);
+        ViewHandler viewHandler = new ViewHandler(viewModelFactory);
+        viewHandler.start(primaryStage);
     }
 
     public static void main(String[] args) {
