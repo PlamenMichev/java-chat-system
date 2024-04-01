@@ -40,7 +40,7 @@ public class ChatClientImplementation implements ChatClient {
 
     @Override
     public void sendMessage(Message message) {
-        output.println(MessageType.NEW_MESSAGE + " " + message.getSentBy() + " " +  message.getContent());
+        output.println(MessageType.NEW_MESSAGE + " " + message.getSentBy() +  " " + message.getSentAt() + " " +  message.getContent());
         output.flush();
     }
 
@@ -88,14 +88,12 @@ public class ChatClientImplementation implements ChatClient {
 
             switch (messageType) {
                 case MessageType.NEW_MESSAGE -> {
-                    var messageSplit = message.split(" ");
-                    String sender = messageSplit[1];
-                    StringBuilder messageContent = new StringBuilder();
-                    for (int i = 2; i < messageSplit.length; i++) {
-                        messageContent.append(messageSplit[i]).append(" ");
-                    }
+                    String[] parts = message.split(" ", 4);
+                    String sender = parts[1];
+                    String content = parts[3];
+                    String timestamp = parts[2];
 
-                    support.firePropertyChange("receive_message", null, new Message(messageContent.toString(), sender));
+                    support.firePropertyChange("receive_message", null, new Message(content, sender));
                 }
                 case MessageType.NEW_USER -> {
                     var username = message.split(" ")[1];

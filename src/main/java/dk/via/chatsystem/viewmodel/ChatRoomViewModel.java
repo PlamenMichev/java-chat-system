@@ -32,7 +32,7 @@ public class ChatRoomViewModel implements PropertyChangeListener {
     }
 
     public void sendMessage() {
-        client.sendMessage(new Message(message.get(), "Plamen"));
+        client.sendMessage(new Message(message.get(), this.client.getCurrentUser().getUsername()));
     }
 
     public void bindMessage(StringProperty property) {
@@ -57,20 +57,16 @@ public class ChatRoomViewModel implements PropertyChangeListener {
 
         if (type.equals("receive_user")) {
             var user = (User) evt.getNewValue();
-            System.out.println("New user: " + user.getUsername());
             if (this.users.stream().noneMatch(u -> u.getUsername().equals(user.getUsername())))
             {
                 this.users.add(user);
+                updateChatBox(user.getUsername() + " has joined the chat");
             }
         }
 
         if (type.equals("receive_message")) {
             var message = (Message) evt.getNewValue();
-            Date date = new Date(message.getSentAt());
-            SimpleDateFormat sdf = new SimpleDateFormat("h:mm");
-            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-            String formattedDate = sdf.format(date);
-            updateChatBox('[' + formattedDate  + ']' +message.getSentBy() + ": " + message.getContent());
+            updateChatBox(message.toString());
         }
     }
 }

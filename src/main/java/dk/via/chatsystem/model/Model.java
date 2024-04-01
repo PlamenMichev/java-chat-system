@@ -8,6 +8,8 @@ public interface Model {
     void sendMessage(Message message);
     void addUser(String username) throws IOException;
     ArrayList<User> getUsers();
+    void setCurrentUser(User user);
+    User getCurrentUser();
     void addPropertyChangeListener(PropertyChangeListener listener);
     void removePropertyChangeListener(PropertyChangeListener listener);
 }

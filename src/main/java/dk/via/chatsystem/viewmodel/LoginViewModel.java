@@ -1,6 +1,7 @@
 package dk.via.chatsystem.viewmodel;
 
 import dk.via.chatsystem.model.Model;
+import dk.via.chatsystem.model.User;
 import dk.via.chatsystem.view.ViewFactory;
 import dk.via.chatsystem.view.ViewHandler;
 import javafx.application.Platform;
@@ -25,6 +26,7 @@ public class LoginViewModel implements PropertyChangeListener {
     public void login(ViewHandler viewHandler) {
         try {
             model.addUser(this.username.get());
+            model.setCurrentUser(new User(this.username.get()));
             viewHandler.openView(ViewFactory.CHAT_ROOM);
         } catch (IOException e) {
             e.printStackTrace();

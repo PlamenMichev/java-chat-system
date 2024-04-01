@@ -13,6 +13,7 @@ import java.util.Date;
 public class ModelManager implements Model, PropertyChangeListener {
     private final ChatClient client;
     private final PropertyChangeSupport support;
+    private User currentUser;
 
     public ModelManager(ChatClient client) {
         this.client = client;
@@ -40,6 +41,16 @@ public class ModelManager implements Model, PropertyChangeListener {
             e.printStackTrace();
             return new ArrayList<>();
         }
+    }
+
+    @Override
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
+    }
+
+    @Override
+    public User getCurrentUser() {
+        return currentUser;
     }
 
     @Override

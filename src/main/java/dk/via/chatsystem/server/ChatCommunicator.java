@@ -50,6 +50,11 @@ public class ChatCommunicator implements Runnable {
                         break;
                     case MessageType.NEW_MESSAGE:
                         // Format: SEND_MESSAGE <message> <sender> <timestamp>
+                        String[] parts = message.split(" ", 4);
+                        String sender = parts[1];
+                        String content = parts[3];
+                        String timestamp = parts[2];
+                        Logger.getInstance().logMessage(new User(sender), content, Long.parseLong(timestamp));
                         broadcaster.broadcast(message);
                         break;
                 }
