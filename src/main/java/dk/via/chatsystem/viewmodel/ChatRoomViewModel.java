@@ -43,6 +43,10 @@ public class ChatRoomViewModel implements PropertyChangeListener {
         return users;
     }
 
+    public String getCurrentUser() {
+        return client.getCurrentUser().getUsername();
+    }
+
     public void bindChatBox(StringProperty property) {
         property.bindBidirectional(chatBox);
     }
@@ -67,6 +71,12 @@ public class ChatRoomViewModel implements PropertyChangeListener {
         if (type.equals("receive_message")) {
             var message = (Message) evt.getNewValue();
             updateChatBox(message.toString());
+        }
+
+        if (type.equals("remove_user")) {
+            var user = (User) evt.getNewValue();
+            this.users.remove(user);
+            updateChatBox(user.getUsername() + " has left the chat");
         }
     }
 }

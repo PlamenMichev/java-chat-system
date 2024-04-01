@@ -51,6 +51,12 @@ public class ChatClientImplementation implements ChatClient {
     }
 
     @Override
+    public void removeUser(String username) {
+        output.println(MessageType.REMOVED_USER + " " + username);
+        output.flush();
+    }
+
+    @Override
     public ArrayList<User> getUsers() throws IOException {
         output.println(MessageType.GET_USERS);
         output.flush();
@@ -91,13 +97,16 @@ public class ChatClientImplementation implements ChatClient {
                     String[] parts = message.split(" ", 4);
                     String sender = parts[1];
                     String content = parts[3];
-                    String timestamp = parts[2];
 
                     support.firePropertyChange("receive_message", null, new Message(content, sender));
                 }
                 case MessageType.NEW_USER -> {
                     var username = message.split(" ")[1];
                     support.firePropertyChange("receive_user", null, new User(username));
+                }
+                case MessageType.REMOVED_USER -> {
+                    var username = message.split(" ")[1];
+                    support.firePropertyChange("remove_user", null, new User(username));
                 }
             }
         });

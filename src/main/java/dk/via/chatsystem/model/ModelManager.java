@@ -54,6 +54,16 @@ public class ModelManager implements Model, PropertyChangeListener {
     }
 
     @Override
+    public void removeUser(String username) {
+        if (username == null || username.isBlank()) return;
+        client.removeUser(username);
+
+        if (username.equals(currentUser.getUsername())) {
+            currentUser = null;
+        }
+    }
+
+    @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         support.addPropertyChangeListener(listener);
     }

@@ -12,6 +12,7 @@ import java.util.Date;
 public interface ChatClient extends Closeable {
     void sendMessage(Message message);
     void addUser(String username);
+    void removeUser(String username);
     ArrayList<User> getUsers() throws IOException;
     void addPropertyChangeListener(PropertyChangeListener listener);
     void removePropertyChangeListener(PropertyChangeListener listener);

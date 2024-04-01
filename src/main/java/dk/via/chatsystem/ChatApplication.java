@@ -24,6 +24,14 @@ public class ChatApplication extends Application {
         ViewModelFactory viewModelFactory = new ViewModelFactory(model);
         ViewHandler viewHandler = new ViewHandler(viewModelFactory);
         viewHandler.start(primaryStage);
+
+        // Add shutdown hook
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            // Perform cleanup or save data before closing the application
+            if (model.getCurrentUser() != null) {
+                model.removeUser(model.getCurrentUser().getUsername());
+            }
+        }));
     }
 
     public static void main(String[] args) {

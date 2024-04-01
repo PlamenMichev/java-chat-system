@@ -10,6 +10,7 @@ public interface Model {
     ArrayList<User> getUsers();
     void setCurrentUser(User user);
     User getCurrentUser();
+    void removeUser(String username);
     void addPropertyChangeListener(PropertyChangeListener listener);
     void removePropertyChangeListener(PropertyChangeListener listener);
 }

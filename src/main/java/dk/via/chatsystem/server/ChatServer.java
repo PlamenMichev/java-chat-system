@@ -12,6 +12,9 @@ public class ChatServer {
     public static void addUser(User chatter) {
         users.add(chatter);
     }
+    public static void removeUser(User chatter) {
+        users.remove(chatter);
+    }
     public static ArrayList<User> getUsers() {
         return users;
     }

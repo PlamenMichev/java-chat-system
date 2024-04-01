@@ -57,6 +57,11 @@ public class ChatCommunicator implements Runnable {
                         Logger.getInstance().logMessage(new User(sender), content, Long.parseLong(timestamp));
                         broadcaster.broadcast(message);
                         break;
+                    case MessageType.REMOVED_USER:
+                        User removedUser = new User(message.split(" ")[1]);
+                        ChatServer.removeUser(removedUser);
+                        broadcaster.broadcast(MessageType.REMOVED_USER + " " + removedUser);
+                        break;
                 }
                 output.flush();
             }
