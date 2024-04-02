@@ -15,10 +15,6 @@ import java.util.Date;
 import javafx.application.Platform;
 
 public class ChatClientImplementation implements ChatClient {
-    private static final String EXIT_JSON = """
-    {"operator": "exit"}
-    """; // JSON string to exit the chat
-
     private final Socket socket;
     private final PrintWriter output;
     private final BufferedReader input;
@@ -82,7 +78,6 @@ public class ChatClientImplementation implements ChatClient {
 
     @Override
     public void close() throws IOException {
-        output.println(EXIT_JSON);
         output.flush();
         socket.close();
         listener.close();
