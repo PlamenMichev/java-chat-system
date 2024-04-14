@@ -1,28 +1,25 @@
 package dk.via.chatsystem.model;
 
-import dk.via.chatsystem.client.ChatClient;
+import dk.via.chatsystem.shared.Chat;
+import dk.via.remote.observer.RemotePropertyChangeEvent;
+import dk.via.remote.observer.RemotePropertyChangeListener;
+import dk.via.remote.observer.RemotePropertyChangeSupport;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Date;
 
-public class ModelManager implements Model, PropertyChangeListener {
-    private final ChatClient client;
-    private final PropertyChangeSupport support;
+public class ModelManager implements Model {
+    private final Chat client;
     private User currentUser;
 
-    public ModelManager(ChatClient client) {
+    public ModelManager(Chat client) throws RemoteException {
         this.client = client;
-        this.support = new PropertyChangeSupport(this);
-        client.addPropertyChangeListener(this);
     }
 
     @Override
-    public void sendMessage(Message message) {
+    public void sendMessage(Message message) throws RemoteException {
         client.sendMessage(message);
     }
 
@@ -54,7 +51,7 @@ public class ModelManager implements Model, PropertyChangeListener {
     }
 
     @Override
-    public void removeUser(String username) {
+    public void removeUser(String username) throws RemoteException {
         if (username == null || username.isBlank()) return;
         client.removeUser(username);
 
@@ -64,17 +61,12 @@ public class ModelManager implements Model, PropertyChangeListener {
     }
 
     @Override
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-        support.addPropertyChangeListener(listener);
+    public void addPropertyChangeListener(RemotePropertyChangeListener<Message> listener) throws RemoteException {
+        this.client.addPropertyChangeListener(listener);
     }
 
     @Override
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
-        support.removePropertyChangeListener(listener);
-    }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        support.firePropertyChange(evt);
+    public void removePropertyChangeListener(RemotePropertyChangeListener<Message> listener) throws RemoteException {
+        this.client.removePropertyChangeListener(listener);
     }
 }

@@ -1,38 +1,42 @@
 package dk.via.chatsystem.viewmodel;
 
-import dk.via.chatsystem.client.MessageType;
 import dk.via.chatsystem.model.Message;
 import dk.via.chatsystem.model.Model;
 import dk.via.chatsystem.model.User;
+import dk.via.remote.observer.RemotePropertyChangeEvent;
+import dk.via.remote.observer.RemotePropertyChangeListener;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.TextArea;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.TimeZone;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 
-public class ChatRoomViewModel implements PropertyChangeListener {
+public class ChatRoomViewModel extends UnicastRemoteObject implements RemotePropertyChangeListener<Message> {
     private final Model client;
     private StringProperty message;
     private StringProperty chatBox;
     private ObservableList<User> users;
 
-    public ChatRoomViewModel(Model client) {
+    public ChatRoomViewModel(Model client) throws RemoteException {
         this.client = client;
         this.users = FXCollections.observableArrayList(client.getUsers());
         this.chatBox = new SimpleStringProperty("");
         this.message = new SimpleStringProperty("");
-        client.addPropertyChangeListener(this);
+        try {
+            this.client.addPropertyChangeListener(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void sendMessage() {
-        client.sendMessage(new Message(message.get(), this.client.getCurrentUser().getUsername()));
+        try {
+            client.sendMessage(new Message(message.get(), this.client.getCurrentUser().getUsername()));
+        } catch (Exception e) {
+            return;
+        }
     }
 
     public void bindMessage(StringProperty property) {
@@ -56,15 +60,15 @@ public class ChatRoomViewModel implements PropertyChangeListener {
     }
 
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void propertyChange(RemotePropertyChangeEvent<Message> evt) {
         var type = evt.getPropertyName();
 
         if (type.equals("receive_user")) {
-            var user = (User) evt.getNewValue();
-            if (this.users.stream().noneMatch(u -> u.getUsername().equals(user.getUsername())))
+            var userMessageModel = (Message) evt.getNewValue();
+            if (this.users.stream().noneMatch(u -> u.getUsername().equals(userMessageModel.getSentBy())))
             {
-                this.users.add(user);
-                updateChatBox(user.getUsername() + " has joined the chat");
+                this.users.add(new User(userMessageModel.getSentBy()));
+                updateChatBox(userMessageModel.getSentBy() + " has joined the chat");
             }
         }
 
@@ -74,9 +78,10 @@ public class ChatRoomViewModel implements PropertyChangeListener {
         }
 
         if (type.equals("remove_user")) {
-            var user = (User) evt.getNewValue();
+            var userMessageModel = (Message) evt.getNewValue();
+            var user = this.users.stream().filter(u -> u.getUsername().equals(userMessageModel.getSentBy())).findFirst().orElse(null);
             this.users.remove(user);
-            updateChatBox(user.getUsername() + " has left the chat");
+            updateChatBox(userMessageModel.getSentBy() + " has left the chat");
         }
     }
 }

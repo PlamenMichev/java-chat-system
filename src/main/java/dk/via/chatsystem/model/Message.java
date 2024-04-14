@@ -1,10 +1,11 @@
 package dk.via.chatsystem.model;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class Message {
+public class Message implements Serializable {
     private String content;
     private String sentBy;
     private long sentAt;

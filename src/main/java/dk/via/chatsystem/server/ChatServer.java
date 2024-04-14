@@ -5,6 +5,9 @@ import dk.via.chatsystem.model.User;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.rmi.AlreadyBoundException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
 public class ChatServer {
@@ -19,15 +22,11 @@ public class ChatServer {
         return users;
     }
 
-    public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(8080);
-        UDPBroadcaster broadcaster = new UDPBroadcaster("230.0.0.0", 8888);
-        while(true) {
-            System.out.println("Server is ready for input port 8080");
-            Socket socket = serverSocket.accept();
-            ChatCommunicator communicator = new ChatCommunicator(socket, broadcaster);
-            Thread communicatorThread = new Thread(communicator);
-            communicatorThread.start();
-        }
+    public static void main(String[] args) throws IOException, AlreadyBoundException {
+        var registry = LocateRegistry.createRegistry(1099);
+        var calculator = new RemoteChat();
+        var remote = UnicastRemoteObject.exportObject(calculator, 0);
+        registry.bind("chat", remote);
+        System.out.println("Server running");
     }
 }

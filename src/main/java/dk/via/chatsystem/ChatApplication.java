@@ -1,9 +1,8 @@
 package dk.via.chatsystem;
 
-import dk.via.chatsystem.client.ChatClient;
-import dk.via.chatsystem.client.ChatClientImplementation;
 import dk.via.chatsystem.model.Model;
 import dk.via.chatsystem.model.ModelManager;
+import dk.via.chatsystem.shared.Chat;
 import dk.via.chatsystem.view.ViewHandler;
 import dk.via.chatsystem.viewmodel.ViewModelFactory;
 import javafx.application.Application;
@@ -14,13 +13,15 @@ import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
 import java.io.Console;
+import java.rmi.registry.LocateRegistry;
 
 
 public class ChatApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
-        ChatClient client = new ChatClientImplementation("localhost", 8080);
-        Model model = new ModelManager(client);
+        var registry = LocateRegistry.getRegistry(1099);
+        var chat = (Chat) registry.lookup("chat");
+        var model = new ModelManager(chat);
         ViewModelFactory viewModelFactory = new ViewModelFactory(model);
         ViewHandler viewHandler = new ViewHandler(viewModelFactory);
         viewHandler.start(primaryStage);
@@ -29,7 +30,14 @@ public class ChatApplication extends Application {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             // Perform cleanup or save data before closing the application
             if (model.getCurrentUser() != null) {
-                model.removeUser(model.getCurrentUser().getUsername());
+                try
+                {
+                    model.removeUser(model.getCurrentUser().getUsername());
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
             }
         }));
     }

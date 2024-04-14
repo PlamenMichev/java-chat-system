@@ -20,7 +20,7 @@ public class LoginViewModel implements PropertyChangeListener {
     public LoginViewModel(Model model) {
         this.model = model;
         this.username = new SimpleStringProperty("");
-        model.addPropertyChangeListener(this);
+//        model.addPropertyChangeListener(this);
     }
 
     public void login(ViewHandler viewHandler) {
